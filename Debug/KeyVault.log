@@ -1,0 +1,5 @@
+﻿  KeyVault.cpp
+  Source.cpp
+c:\users\stacy\documents\visual studio 2015\projects\keyvault\keyvault\source.cpp(41): warning C4101: 'mdString': unreferenced local variable
+  Generating Code...
+  KeyVault.vcxproj -> C:\Users\Stacy\Documents\Visual Studio 2015\Projects\KeyVault\Debug\KeyVault.exe
