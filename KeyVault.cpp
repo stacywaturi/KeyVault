@@ -222,6 +222,75 @@ void KeyVault::Authenticate(utility::string_t& clientId)
 
 }
 
+/******************************************************
+CREATE CERT
+*******************************************************/
+
+/* Call Azure KeyVault REST API to CREATE KEY
+*/
+bool KeyVault::createdCert()
+{
+	createCert().wait();
+	return this->status_code == 200;
+}
+
+
+/*Creates a new certificate.
+If this is the first version, the certificate resource is created. 
+This operation requires the certificates/create permission.
+--------------------------------------------------------------------------------
+POST {vaultBaseUrl}/certificates/{certificate-name}/create?api-version=2016-10-01
+
+Request Body:
+"policy":{ 
+	"x509_props":{
+		"subject": "CN=name123"
+		}, 
+	"issuer":{
+		"name":"Self"/"Unknown"}
+--------------------------------------------------------------------------------
+*/
+pplx::task<void>  KeyVault::createCert() {
+	auto impl = this;
+	
+	utility::string_t certName = _XPLATSTR("myCert");
+	utility::string_t subject = _XPLATSTR("CN=MyCertSubject");
+	utility::string_t issuer = _XPLATSTR("Unknown");
+
+	utility::string_t url = _XPLATSTR("https://") + impl->keyVaultName + _XPLATSTR(".vault.azure.net/certificates/") + certName + _XPLATSTR("/create?api-version=2016-10-01");
+	
+	web::http::client::http_client client(url);
+	web::http::http_request request(web::http::methods::POST);
+	request.headers().add(_XPLATSTR("Accept"), _XPLATSTR("application/json"));
+	request.headers().add(_XPLATSTR("client-request-id"), NewGuid());
+
+	//Add
+	request.headers().add(_XPLATSTR("Authorization"), impl->tokenType + _XPLATSTR(" ") + impl->accessToken);
+	web::json::value postData;
+
+	postData[L"policy"][L"x509_props"][L"subject"] = web::json::value::string(subject);
+	postData[L"policy"][L"issuer"][L"name"] = web::json::value::string(issuer);
+
+
+	request.set_body(postData);
+	std::wcout << request.to_string() << std::endl;
+	// Azure HTTP REST API call
+	return client.request(request).then([impl](web::http::http_response response)
+	{
+		std::wcout << response.to_string() << std::endl;
+		std::error_code err;
+		impl->status_code = response.status_code();
+		if (impl->status_code == 200) {
+
+			utility::string_t target = impl->read_response_body(response);
+
+		}
+		else {
+			impl->secret = web::json::value::parse(_XPLATSTR("{\"id\":\"\",\"value\":\"\"}"), err);
+		}
+	});
+}
+
 
 /******************************************************
 CREATE KEY
@@ -272,7 +341,7 @@ pplx::task<void>  KeyVault::createKey(utility::string_t& keyname, utility::strin
 	// Azure HTTP REST API call
 	return client.request(request).then([impl](web::http::http_response response)
 	{
-		//std::wcout << response.to_string() << std::endl;
+		std::wcout << response.to_string() << std::endl;
 		std::error_code err;
 		impl->status_code = response.status_code();
 		if (impl->status_code == 200) {
@@ -447,7 +516,7 @@ pplx::task<void> KeyVault::sign(utility::string_t kid, utility::string_t algorit
 	return client.request(request).then([impl](web::http::http_response response)
 	{
 
-	//	std::wcout << response.to_string() << std::endl;
+		std::wcout << response.to_string() << std::endl;
 
 		impl->status_code = response.status_code();
 		if (impl->status_code == 200) {

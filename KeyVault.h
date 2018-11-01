@@ -67,6 +67,8 @@ private:
 	//Device code polling to Authenticate 
 	void Authenticate(utility::string_t& clientId);
 
+	
+
 	//List subscriptions (**)
 	pplx::task<void> listSubscriptions();
 
@@ -105,8 +107,9 @@ public:
 	bool GetKeyValue(utility::string_t secretName, web::json::value& key);
 	bool GetSignature(utility::string_t secretName, utility::string_t, utility::string_t, web::json::value& signature);
 	bool GetVerification(utility::string_t secretName, utility::string_t, utility::string_t, utility::string_t signValue, web::json::value& verification);
+	pplx::task<void> createCert();
 	bool createdKey(utility::string_t & keyname, utility::string_t & keytype, utility::string_t & keysize);
-
+	bool createdCert();
 };
 
 #endif
