@@ -8,6 +8,10 @@
 #ifdef _WIN32
 #include <time.h>
 #include <objbase.h>
+#include <algorithm>
+#include <functional>
+#include <iostream>
+
 #else
 #include <sys/time.h>
 #include <uuid/uuid.h>
@@ -59,6 +63,12 @@ private:
 	//Creates a new key, stores it, then returns key parameters and attributes to the client.
 	pplx::task<void> createKey(utility::string_t& keyname, utility::string_t& keytype, utility::string_t& keysize);
 
+	
+
+
+
+
+
 	//Make a HTTP Get to Azure KeyVault unauthorized which gets us a response 
 	//where the header contains the url of Identity provider to be used
 	pplx::task<void> AuthenticateKeyVault(utility::string_t& keyVaultName);
@@ -85,6 +95,8 @@ private:
 	utility::string_t read_response_body(web::http::http_response response);
 	//Convert to date time utility
 	void convertTime(utility::string_t expiresIn);
+	void eraseAllSubStr(utility::string_t & mainStr, const utility::string_t & toErase);
+	
 
 public:
 	KeyVault();
@@ -99,11 +111,24 @@ public:
 	//Authentication Response, after Device code TOKEN
 	int GetAuthenticateResponse(utility::string_t& clientId);
 	
+	int GetClientAuthCodeResponse(utility::string_t & clientId);
+
+	pplx::task<void> getClientAuthCode(utility::string_t & clientId);
+
+	bool getCSRResponse(utility::string_t certName, web::json::value & response);
+
 	//Get Access TOKEN
 	bool GetAccessToken(utility::string_t & clientId, utility::string_t & access_token, utility::string_t & token_type);
 
 	//Key Vault Operations
 	bool GetSecretValue(utility::string_t secretName, web::json::value& secret);
+	pplx::task<void> getCSR(utility::string_t certName);
+	bool mergedCert();
+	pplx::task<void> mergeCertificate();
+
+	
+
+	
 	bool GetKeyValue(utility::string_t secretName, web::json::value& key);
 	bool GetSignature(utility::string_t secretName, utility::string_t, utility::string_t, web::json::value& signature);
 	bool GetVerification(utility::string_t secretName, utility::string_t, utility::string_t, utility::string_t signValue, web::json::value& verification);

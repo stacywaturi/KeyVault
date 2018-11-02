@@ -15,6 +15,7 @@
  //globals
 //Native Client APP
 utility::string_t clientId = _XPLATSTR("9d98c3f3-78fa-4449-ae07-6a01f58a8446");
+
 utility::string_t keyVaultName = _XPLATSTR("tf-test-vault");
 
 
@@ -25,6 +26,8 @@ void get_key(KeyVault );
 
 void sign(KeyVault );
 void create_cert(KeyVault );
+void get_csr(KeyVault);
+void merge_cert(KeyVault);
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -35,24 +38,6 @@ int wmain(int argc, wchar_t* argv[])
 int main(int argc, char* argv[])
 #endif
 {
-
-	Hash hashit;
-
-	std::string hashedit = hashit.SHA256hash("hello world");
-	std::stringstream ss;
-	//	std::cout << SHA256_DIGEST_LENGTH << std::endl;
-
-
-
-	char mdString[SHA256_DIGEST_LENGTH * 2 + 1];
-
-	for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
-	{
-		//ss<< hashit.tohex(hashedit[i]);
-		/*ss << hashit.tohex(hashedit[i]);*/
-	}
-	std::cout << ss.str() << std::endl;
-
 	std::wcout << _XPLATSTR("Enter Key vault name	:");
 	std::wcout << keyVaultName << std::endl;
 	//std::wcin >> keyVaultName;
@@ -69,36 +54,43 @@ int main(int argc, char* argv[])
 	int AuthResponse = kvc.GetAuthenticateKeyVaultResponse(keyVaultName);
 	std::wcout << AuthResponse << std::endl;
 
-	int DeviceCodeResponse = kvc.GetDeviceCodeResponse(clientId);
+	int ClientCodeResponse = kvc.GetClientAuthCodeResponse(clientId);
+	std::wcout << _XPLATSTR("CleientCodeRespocnse	:") << ClientCodeResponse << std::endl;
+
+	/*int DeviceCodeResponse = kvc.GetDeviceCodeResponse(clientId);
 	std::wcout << _XPLATSTR("DeviceCodeResponse	:") << DeviceCodeResponse << std::endl;
 
 	int AuthenticateResponse = kvc.GetAuthenticateResponse(clientId);
-	std::wcout << _XPLATSTR("AuthenticateResponse	:") << AuthenticateResponse << std::endl;
+	std::wcout << _XPLATSTR("AuthenticateResponse	:") << AuthenticateResponse << std::endl;*/
 
 	utility::string_t  accessToken = _XPLATSTR("");
 	utility::string_t tokenType = _XPLATSTR("");
 
 	kvc.GetAccessToken(clientId, accessToken, tokenType);
-	//	kvc.createAuthorizationURL(keyVaultName, accessToken, tokenType);
+	
 	std::wcout << _XPLATSTR("Access token  : ") << accessToken << std::endl;
 	std::wcout << _XPLATSTR("Token type  : ") << tokenType << std::endl;
 
 	std::wcout << _XPLATSTR("Authenticating for KeyVault:") << keyVaultName.c_str() << _XPLATSTR("...") << std::endl;
 	std::wcout << _XPLATSTR("clientId : ") << clientId.c_str() << _XPLATSTR("..") << std::endl;
 
-	std::wcout << _XPLATSTR("Input Action eg. create key, list keys etc") << std::endl;
-
-
+	///////////////////////////////////////////////////////////////////////////
+	//// Key Vault Action 
+	//////////////////////////////////////////////////////////////////////////
+	
 	char type = 'y';
 	char action;
 
 	while (type == 'y' || type == 'Y') {
-		system("cls");
+		//system("cls");
+		std::cout << "Input Action eg. create key, list keys etc" << std::endl;
 		std::cout << "1. Create Key" << std::endl
 			<< "2. Get Specific Key" << std::endl
 			<< "3. Get All Keys" << std::endl
 			<< "4. Sign  " << std::endl
 			<< "5. Create Certificate" << std::endl
+			<< "6. Get CSR" << std::endl 
+			<< "7. Merge cert" << std::endl
 			<< "Enter option: ";
 
 		std::cin >> action;
@@ -120,6 +112,14 @@ int main(int argc, char* argv[])
 
 		case '5':
 			create_cert(kvc);
+			break;
+
+		case '6':
+			get_csr(kvc);
+			break;
+
+		case '7':
+			merge_cert(kvc);
 			break;
 
 		default:
@@ -275,6 +275,45 @@ void create_cert(KeyVault kvc) {
 
 
 	
+}
+
+void get_csr(KeyVault kvc) {
+
+	std::wcout << _XPLATSTR(" Retrieving CSR  ") << std::endl;
+
+	web::json::value jsonKey;
+	utility::string_t action = _XPLATSTR("myCert11");
+	
+	bool rc = kvc.getCSRResponse(action, jsonKey);
+
+	if (rc == false) {
+		std::wcout << _XPLATSTR("Certificate not found") << std::endl;
+		return;
+	}
+
+	std::wcout << _XPLATSTR("CSR   : ") << (jsonKey[_XPLATSTR("csr")]) << std::endl;
+
+	utility::string_t CSR = _XPLATSTR("-----BEGIN CERTIFICATE REQUEST-----\n") + (jsonKey[_XPLATSTR("csr")]).as_string()
+							+ _XPLATSTR("\n-----END CERTIFICATE REQUEST-----");
+
+	std::wcout << _XPLATSTR("CSR  edited : ") << CSR << std::endl;
+
+	utility::ofstream_t out("myCSR1.csr");
+	out << CSR;
+	out.close();
+
+
+}
+
+void merge_cert(KeyVault kvc) {
+
+	bool rc = kvc.mergedCert();
+
+	if (rc == false) {
+		std::wcout << _XPLATSTR("Certificate not merged") << std::endl;
+		return;
+	}
+
 }
 
 
