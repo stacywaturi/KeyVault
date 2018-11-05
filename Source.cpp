@@ -38,24 +38,26 @@ int wmain(int argc, wchar_t* argv[])
 int main(int argc, char* argv[])
 #endif
 {
-	std::wcout << _XPLATSTR("Enter Key vault name	:");
-	std::wcout << keyVaultName << std::endl;
+	//std::wcout << _XPLATSTR("Enter Key vault name	:");
+	//std::wcout << keyVaultName << std::endl;
 	//std::wcin >> keyVaultName;
 
-	std::wcout << _XPLATSTR("Enter Client ID of Registered App	:");
-	std::wcout << clientId.c_str() << std::endl;
+	//std::wcout << _XPLATSTR("Enter Client ID of Registered App	:");
+	//std::wcout << clientId.c_str() << std::endl;
 
 	///////////////////////////////////////////////////////////////////////////
 	//// Authenticate with Azure AD
 	//////////////////////////////////////////////////////////////////////////
+	std::wcout << _XPLATSTR("Authenticating for KeyVault	:") << keyVaultName.c_str() << _XPLATSTR("...") << std::endl;
+	std::wcout << _XPLATSTR("Client ID	: ") << clientId.c_str() << _XPLATSTR("..") << std::endl;
 
 	KeyVault kvc;
 
 	int AuthResponse = kvc.GetAuthenticateKeyVaultResponse(keyVaultName);
-	std::wcout << AuthResponse << std::endl;
+//	std::wcout << AuthResponse << std::endl;
 
 	int ClientCodeResponse = kvc.GetClientAuthCodeResponse(clientId);
-	std::wcout << _XPLATSTR("CleientCodeRespocnse	:") << ClientCodeResponse << std::endl;
+//	std::wcout << _XPLATSTR("CleientCodeRespocnse	:") << ClientCodeResponse << std::endl;
 
 	/*int DeviceCodeResponse = kvc.GetDeviceCodeResponse(clientId);
 	std::wcout << _XPLATSTR("DeviceCodeResponse	:") << DeviceCodeResponse << std::endl;
@@ -68,11 +70,10 @@ int main(int argc, char* argv[])
 
 	kvc.GetAccessToken(clientId, accessToken, tokenType);
 	
-	std::wcout << _XPLATSTR("Access token  : ") << accessToken << std::endl;
-	std::wcout << _XPLATSTR("Token type  : ") << tokenType << std::endl;
+	//std::wcout << _XPLATSTR("Access token  : ") << accessToken << std::endl;
+	//std::wcout << _XPLATSTR("Token type  : ") << tokenType << std::endl;
 
-	std::wcout << _XPLATSTR("Authenticating for KeyVault:") << keyVaultName.c_str() << _XPLATSTR("...") << std::endl;
-	std::wcout << _XPLATSTR("clientId : ") << clientId.c_str() << _XPLATSTR("..") << std::endl;
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	//// Key Vault Action 
@@ -82,7 +83,7 @@ int main(int argc, char* argv[])
 	char action;
 
 	while (type == 'y' || type == 'Y') {
-		//system("cls");
+		system("cls");
 		std::cout << "Input Action eg. create key, list keys etc" << std::endl;
 		std::cout << "1. Create Key" << std::endl
 			<< "2. Get Specific Key" << std::endl
@@ -138,12 +139,17 @@ int main(int argc, char* argv[])
 
 void create_key(KeyVault kvc) {
 	
-	std::wcout << _XPLATSTR("Enter key name,type and size ") << std::endl;
-	std::wcout << _XPLATSTR("keyname3 RSA 2048") << std::endl;
-	utility::string_t keyname = _XPLATSTR("keyname3");
+	std::wcout << _XPLATSTR("Enter key name (default type RSA 2048)	:");
+	utility::string_t keyname;
 	utility::string_t keytype = _XPLATSTR("RSA");
 	utility::string_t keysize = _XPLATSTR("2048");
-	std::wcout << _XPLATSTR("Creating key ") << std::endl;
+
+
+	std::wcin >> keyname;
+	//std::wcout << _XPLATSTR("keyname3 RSA 2048") << std::endl;
+	
+	
+	std::wcout << _XPLATSTR("Creating key ...") << std::endl;
 	bool rc = kvc.createdKey(keyname, keytype, keysize);
 
 	if (rc == false) {
@@ -152,19 +158,19 @@ void create_key(KeyVault kvc) {
 	}
 
 	else
-		std::wcout << _XPLATSTR("Key created") << std::endl;
+		std::wcout << _XPLATSTR("Key ") << keyname << _XPLATSTR(" successfully created") << std::endl;
 
 
 }
 
 void get_key(KeyVault kvc) {
-	std::wcout << _XPLATSTR("Enter key name") << std::endl;
+	std::wcout << _XPLATSTR("Enter key name	: ");
 
 	utility::string_t keyname = _XPLATSTR("");
 
 	std::wcin >> keyname;
 
-	std::wcout << _XPLATSTR("Querying KeyVault for Keys ") << keyname << _XPLATSTR("...") << std::endl;
+	std::wcout << _XPLATSTR("Querying KeyVault for ") << keyname << _XPLATSTR("...") << std::endl;
 	web::json::value jsonKey;
 	bool rc = kvc.GetKeyValue(keyname, jsonKey);
 
@@ -198,27 +204,27 @@ void sign(KeyVault kvc) {
 	utility::string_t keyname = _XPLATSTR("keyname1");
 
 	std::string string1 = "hello world";
-	utility::string_t algorithm = _XPLATSTR("ES384");
+	utility::string_t algorithm = _XPLATSTR("RS256");
 	std::string hashed = "";
 
 	Hash hashObj;
 
 	if (algorithm == _XPLATSTR("RS256") || algorithm == _XPLATSTR("ES256")) {
 		hashed = hashObj.SHA256hash(string1).c_str();
-		std::wcout << hashObj.SHA256hash(string1).c_str() << std::endl;
+		std::wcout << _XPLATSTR("Hash value	:") << hashObj.SHA256hash(string1).c_str() << std::endl;
 	}
 	else if (algorithm == _XPLATSTR("RS384") || algorithm == _XPLATSTR("ES384")) {
 		hashed = hashObj.SHA384hash(string1).c_str();
-		std::wcout << hashObj.SHA384hash(string1).c_str() << std::endl;
+		std::wcout << _XPLATSTR("Hash value	:") << hashObj.SHA384hash(string1).c_str() << std::endl;
 	}
 	else if (algorithm == _XPLATSTR("RS512") || algorithm == _XPLATSTR("ES512")) {
 		hashed = hashObj.SHA512hash(string1).c_str();
-		std::wcout << _XPLATSTR("Digest	:") << hashObj.SHA512hash(string1).c_str() << std::endl;
+		std::wcout << _XPLATSTR("Hash value	:") << _XPLATSTR("Digest	:") << hashObj.SHA512hash(string1).c_str() << std::endl;
 	}
 	else
 		std::wcout << _XPLATSTR("NOT A VALID ALGORITHM") << std::endl;
 
-	//	std::wcout << _XPLATSTR("Querying KeyVault for Keys ") << keyname.c_str() << _XPLATSTR("...") << std::endl; 
+	std::wcout << _XPLATSTR("Querying KeyVault for ") << keyname.c_str() << _XPLATSTR("...") << std::endl; 
 	web::json::value jsonKey;
 	bool rc = kvc.GetKeyValue(keyname, jsonKey);
 
@@ -228,6 +234,7 @@ void sign(KeyVault kvc) {
 	}
 	utility::string_t kid = (jsonKey[_XPLATSTR("key")])[_XPLATSTR("kid")].as_string();
 
+	std::wcout << _XPLATSTR("Creating signature from ") << keyname.c_str() << _XPLATSTR("...") << std::endl;
 
 	web::json::value jsonSignature;
 	utility::string_t hash = utility::conversions::to_string_t(hashed);
@@ -243,11 +250,12 @@ void sign(KeyVault kvc) {
 	utility::string_t signValue = (jsonSignature[_XPLATSTR("value")]).as_string();
 	std::wcout << _XPLATSTR("Signature  : ") << signValue << std::endl;
 
-	std::wcout << _XPLATSTR("Decoding digest...") << std::endl;
 
-	std::string unhashed = "";
+	std::wcout << _XPLATSTR("Verifying signature...") << std::endl;
+
+	/*std::string unhashed = "";
 	unhashed = hashObj.decodeURL(hashed);
-	std::wcout << _XPLATSTR("Decoded digest:	") << unhashed.c_str() << std::endl;
+	std::wcout << _XPLATSTR("Decoded digest:	") << unhashed.c_str() << std::endl;*/
 
 	web::json::value jsonVerification;
 
@@ -262,41 +270,54 @@ void sign(KeyVault kvc) {
 
 void create_cert(KeyVault kvc) {
 
+	utility::string_t certName ;
+	utility::string_t subject ;
+
+	std::wcout << _XPLATSTR(" Enter Certificate Name	: ");
+	std::wcin >> certName;
+
+	std::wcout << _XPLATSTR(" Enter Subject Name (eg. 'CN=mydomain.com'	: ");
+	std::wcin >> subject;
+
+	web::json::value jsonCertificate;
+
 	std::wcout << _XPLATSTR(" Creating Certificate  ") << std::endl;
-
-
-	bool rc = kvc.createdCert();
+	bool rc = kvc.createdCert(certName, subject, jsonCertificate);
 
 	if (rc == false) {
 		std::wcout << _XPLATSTR("Certificate not created") << std::endl;
+		std::wcout << _XPLATSTR("Error  : ") << jsonCertificate << std::endl;
 		return;
 	}
 
+	std::wcout << _XPLATSTR("Certificate  : ") << jsonCertificate << std::endl;
 
-
-	
 }
 
 void get_csr(KeyVault kvc) {
 
-	std::wcout << _XPLATSTR(" Retrieving CSR  ") << std::endl;
+	std::wcout << _XPLATSTR("Enter Certificate name	: ");
 
 	web::json::value jsonKey;
-	utility::string_t action = _XPLATSTR("myCert11");
-	
-	bool rc = kvc.getCSRResponse(action, jsonKey);
+	utility::string_t certName;
+
+	std::wcin >> certName;
+
+	std::wcout << _XPLATSTR(" Retrieving CSR  ") << std::endl;
+	bool rc = kvc.getCSRResponse(certName, jsonKey);
 
 	if (rc == false) {
-		std::wcout << _XPLATSTR("Certificate not found") << std::endl;
+		std::wcout << _XPLATSTR("Certificate not found	: ") << jsonKey << std::endl;
+
 		return;
 	}
 
-	std::wcout << _XPLATSTR("CSR   : ") << (jsonKey[_XPLATSTR("csr")]) << std::endl;
+	//std::wcout << _XPLATSTR("CSR   : ") << (jsonKey[_XPLATSTR("csr")]) << std::endl;
 
 	utility::string_t CSR = _XPLATSTR("-----BEGIN CERTIFICATE REQUEST-----\n") + (jsonKey[_XPLATSTR("csr")]).as_string()
 							+ _XPLATSTR("\n-----END CERTIFICATE REQUEST-----");
 
-	std::wcout << _XPLATSTR("CSR  edited : ") << CSR << std::endl;
+	std::wcout << _XPLATSTR("CSR	: ") << CSR << std::endl;
 
 	utility::ofstream_t out("myCSR1.csr");
 	out << CSR;
@@ -307,19 +328,28 @@ void get_csr(KeyVault kvc) {
 
 void merge_cert(KeyVault kvc) {
 
-	bool rc = kvc.mergedCert();
+	utility::string_t certName;
+	utility::string_t fileName;
+
+	std::wcout << _XPLATSTR("Enter Certificate Name	: ");
+	std::wcin >> certName;
+
+	std::wcout << _XPLATSTR("Enter Filename to Merge Signed Request	: ");
+	std::wcin >> fileName;
+
+	web::json::value jsonCert;
+	bool rc = kvc.mergedCert(certName, fileName, jsonCert);
 
 	if (rc == false) {
-		std::wcout << _XPLATSTR("Certificate not merged") << std::endl;
+		std::wcout << _XPLATSTR("Certificate not merged") << jsonCert << std::endl;
 		return;
 	}
 
+	std::wcout << _XPLATSTR("Certificate Created") << jsonCert << std::endl;
+
+
+
 }
-
-
-
-
-
 
 	
 //	

@@ -42,6 +42,7 @@ private:
 	web::json::value key;				//Key value
 	web::json::value signature;			//Sign Response
 	web::json::value verification;		//Verify Response
+	web::json::value cert;				//Certificate value
 
 	int status_code;					//Status code (200,400,401)
 
@@ -123,8 +124,8 @@ public:
 	//Key Vault Operations
 	bool GetSecretValue(utility::string_t secretName, web::json::value& secret);
 	pplx::task<void> getCSR(utility::string_t certName);
-	bool mergedCert();
-	pplx::task<void> mergeCertificate();
+	bool mergedCert(utility::string_t certName, utility::string_t fileName, web::json::value &);
+	pplx::task<void> mergeCertificate(utility::string_t certName, utility::string_t fileName);
 
 	
 
@@ -132,9 +133,9 @@ public:
 	bool GetKeyValue(utility::string_t secretName, web::json::value& key);
 	bool GetSignature(utility::string_t secretName, utility::string_t, utility::string_t, web::json::value& signature);
 	bool GetVerification(utility::string_t secretName, utility::string_t, utility::string_t, utility::string_t signValue, web::json::value& verification);
-	pplx::task<void> createCert();
+	pplx::task<void> createCert(utility::string_t certName, utility::string_t subject);
 	bool createdKey(utility::string_t & keyname, utility::string_t & keytype, utility::string_t & keysize);
-	bool createdCert();
+	bool createdCert(utility::string_t certName, utility::string_t subject, web::json::value &);
 };
 
 #endif

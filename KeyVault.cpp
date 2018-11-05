@@ -1,5 +1,4 @@
 #include "KeyVault.h"
-
 #include "cpprest/asyncrt_utils.h"
 
 KeyVault::KeyVault() {
@@ -12,7 +11,7 @@ KeyVault::KeyVault() {
 
 	this->secret = web::json::value();					this->key = web::json::value();
 	this->signature = web::json::value();				this->verification = web::json::value();
-
+	this->cert = web::json::value();
 	this->status_code = 0;
 }
 
@@ -53,13 +52,13 @@ pplx::task<void> KeyVault::AuthenticateKeyVault(utility::string_t& keyVaultName)
 	auto impl = this;
 	impl->keyVaultName = keyVaultName;
 	utility::string_t url = _XPLATSTR("https://") + impl->keyVaultName + _XPLATSTR(".vault.azure.net/secrets/secretname?api-version=2015-06-01");
-	std::wcout << std::endl << _XPLATSTR("REQUEST TO  URL	:");
-	std::wcout << url << std::endl;
+	//std::wcout << std::endl << _XPLATSTR("REQUEST TO  URL	:");
+	//std::wcout << url << std::endl;
 	web::http::client::http_client client(url);
 	return client.request(web::http::methods::GET).then([impl](web::http::http_response response)
 	{
-		std::wcout << std::endl << _XPLATSTR("UNAUTHORIZED RESPONSE	:");
-		std::wcout << response.to_string() << std::endl;
+		//std::wcout << std::endl << _XPLATSTR("UNAUTHORIZED RESPONSE	:");
+		//std::wcout << response.to_string() << std::endl;
 		impl->status_code = response.status_code();
 		if (impl->status_code == 401) {
 			web::http::http_headers& headers = response.headers();
@@ -99,8 +98,8 @@ pplx::task<void> KeyVault::getDeviceCode(utility::string_t& clientId) {
 	auto impl = this;
 	// create the oauth2 authentication request and pass the clientId/Secret as app identifiers h
 	utility::string_t url = impl->loginUrl + _XPLATSTR("/oauth2/devicecode")/*+_XPLATSTR("client_id=") + clientId + _XPLATSTR("&response_type=code")*/;
-	std::wcout << std::endl << _XPLATSTR("REQUEST TO  GET DEVICE CODE	:");
-	std::wcout << url << std::endl;
+	//std::wcout << std::endl << _XPLATSTR("REQUEST TO  GET DEVICE CODE	:");
+	//std::wcout << url << std::endl;
 	web::http::client::http_client client(url);
 
 	utility::string_t postData = _XPLATSTR("resource=") + web::uri::encode_uri(impl->resourceUrl) + _XPLATSTR("&client_id=") + clientId;
@@ -110,10 +109,10 @@ pplx::task<void> KeyVault::getDeviceCode(utility::string_t& clientId) {
 	request.headers().add(_XPLATSTR("Expect"), _XPLATSTR("100-continue"));
 	request.headers().add(_XPLATSTR("Connection"), _XPLATSTR("Keep-Alive"));
 	request.set_body(postData);
-	std::wcout << request.to_string() << std::endl;
+	//std::wcout << request.to_string() << std::endl;
 	return client.request(request).then([impl](web::http::http_response response)
 	{
-		std::wcout << std::endl << _XPLATSTR("RESPONSE :") << response.to_string() << std::endl;
+		//std::wcout << std::endl << _XPLATSTR("RESPONSE :") << response.to_string() << std::endl;
 		impl->status_code = response.status_code();
 		if (impl->status_code == 200) {
 			//std::wcout << _XPLATSTR("Device Code Success") << std::endl;
@@ -146,8 +145,8 @@ pplx::task<void> KeyVault::getClientAuthCode(utility::string_t& clientId) {
 	auto impl = this;
 	// create the oauth2 authentication request and pass the clientId/Secret as app identifiers h
 	utility::string_t url = impl->loginUrl + _XPLATSTR("/oauth2/token");/*+_XPLATSTR("client_id=") + clientId + _XPLATSTR("&response_type=code")*/
-	std::wcout << std::endl << _XPLATSTR("REQUEST TO  GET CLIENT AUTH CODE	:");
-	std::wcout << url << std::endl;
+	//std::wcout << std::endl << _XPLATSTR("REQUEST TO  GET CLIENT AUTH CODE	:");
+	//std::wcout << url << std::endl;
 	web::http::client::http_client client(url);
 
 	utility::string_t username = _XPLATSTR("stacy@isolvtech.com");
@@ -162,10 +161,10 @@ pplx::task<void> KeyVault::getClientAuthCode(utility::string_t& clientId) {
 	request.headers().add(_XPLATSTR("Expect"), _XPLATSTR("100-continue"));
 	request.headers().add(_XPLATSTR("Connection"), _XPLATSTR("Keep-Alive"));
 	request.set_body(postData);
-	std::wcout << request.to_string() << std::endl;
+	//std::wcout << request.to_string() << std::endl;
 	return client.request(request).then([impl](web::http::http_response response)
 	{
-		std::wcout << std::endl << _XPLATSTR("RESPONSE :") << response.to_string() << std::endl;
+		//std::wcout << std::endl << _XPLATSTR("RESPONSE :") << response.to_string() << std::endl;
 		impl->status_code = response.status_code();
 		if (impl->status_code == 200) {
 			//std::wcout << _XPLATSTR("Device Code Success") << std::endl;
@@ -214,8 +213,8 @@ void KeyVault::Authenticate(utility::string_t& clientId)
 	utility::string_t device_code = impl->deviceCode;
 	// create the oauth2 authentication request and pass the clientId/Secret as app identifiers
 	utility::string_t url = impl->loginUrl + _XPLATSTR("/oauth2/token");
-	std::wcout << std::endl << _XPLATSTR("REQUEST TO  GET ACCESS TOKEN	:");
-	std::wcout << url << std::endl;
+	//std::wcout << std::endl << _XPLATSTR("REQUEST TO  GET ACCESS TOKEN	:");
+	//std::wcout << url << std::endl;
 	web::http::client::http_client client(url);
 	utility::string_t postData = _XPLATSTR("resource=") + web::uri::encode_uri(impl->resourceUrl) + _XPLATSTR("&client_id=") + clientId
 		+ _XPLATSTR("&code=") + device_code + _XPLATSTR("&grant_type=device_code");
@@ -246,7 +245,7 @@ void KeyVault::Authenticate(utility::string_t& clientId)
 		
 
 		if (impl->status_code == 200) {
-			std::wcout << _XPLATSTR("Login Successful") << std::endl;
+			//std::wcout << _XPLATSTR("Login Successful") << std::endl;
 			utility::string_t target = impl->read_response_body(response);
 			std::error_code err;
 			web::json::value jwtToken = web::json::value::parse(target.c_str(), err);
@@ -279,10 +278,11 @@ CREATE CERT
 
 /* Call Azure KeyVault REST API to CREATE KEY
 */
-bool KeyVault::createdCert()
+bool KeyVault::createdCert(utility::string_t certName, utility::string_t subject, web::json::value &cert)
 {
-	createCert().wait();
-	return this->status_code == 200;
+	createCert(certName, subject).wait();
+	cert = this->cert;
+	return this->status_code == 202;
 }
 
 
@@ -301,11 +301,11 @@ Request Body:
 		"name":"Self"/"Unknown"}
 --------------------------------------------------------------------------------
 */
-pplx::task<void>  KeyVault::createCert() {
+pplx::task<void>  KeyVault::createCert(utility::string_t certName, utility::string_t subject) {
 	auto impl = this;
 	
-	utility::string_t certName = _XPLATSTR("myCert11");
-	utility::string_t subject = _XPLATSTR("CN=MyCertSubject11");
+	//utility::string_t certName = _XPLATSTR("myCert11");
+	//utility::string_t subject = _XPLATSTR("CN=MyCertSubject11");
 	utility::string_t issuer = _XPLATSTR("Unknown");
 
 	utility::string_t url = _XPLATSTR("https://") + impl->keyVaultName + _XPLATSTR(".vault.azure.net/certificates/") + certName + _XPLATSTR("/create?api-version=2016-10-01");
@@ -324,20 +324,21 @@ pplx::task<void>  KeyVault::createCert() {
 
 
 	request.set_body(postData);
-	std::wcout << request.to_string() << std::endl;
+	//std::wcout << request.to_string() << std::endl;
 	// Azure HTTP REST API call
 	return client.request(request).then([impl](web::http::http_response response)
 	{
-		std::wcout << response.to_string() << std::endl;
+		//std::wcout << response.to_string() << std::endl;
 		std::error_code err;
 		impl->status_code = response.status_code();
-		if (impl->status_code == 200) {
+		if (impl->status_code == 202) {
 
 			utility::string_t target = impl->read_response_body(response);
-
+			impl->cert = web::json::value::parse(target.c_str(), err);
 		}
 		else {
-			impl->secret = web::json::value::parse(_XPLATSTR("{\"id\":\"\",\"value\":\"\"}"), err);
+			utility::string_t target = impl->read_response_body(response);
+			impl->cert = web::json::value::parse(target.c_str(), err);
 		}
 	});
 }
@@ -393,7 +394,7 @@ pplx::task<void>  KeyVault::createKey(utility::string_t& keyname, utility::strin
 	// Azure HTTP REST API call
 	return client.request(request).then([impl](web::http::http_response response)
 	{
-		std::wcout << response.to_string() << std::endl;
+		//std::wcout << response.to_string() << std::endl;
 		std::error_code err;
 		impl->status_code = response.status_code();
 		if (impl->status_code == 200) {
@@ -420,7 +421,7 @@ bool KeyVault::getCSRResponse(utility::string_t certName, web::json::value &resp
 {
 
 	getCSR(certName).wait();
-	response = this->key;
+	response = this->cert;
 	return this->status_code == 200;
 }
 
@@ -439,18 +440,18 @@ pplx::task<void>  KeyVault::getCSR(utility::string_t certName) {
 	
 
 	utility::string_t url = _XPLATSTR("https://") + impl->keyVaultName + _XPLATSTR(".vault.azure.net/certificates/") + certName + _XPLATSTR("/pending?api-version=2016-10-01");
-	std::wcout << url << std::endl;
+	//std::wcout << url << std::endl;
 	web::http::client::http_client client(url);
 	web::http::http_request request(web::http::methods::GET);
 	request.headers().add(_XPLATSTR("Accept"), _XPLATSTR("application/json"));
 	request.headers().add(_XPLATSTR("client-request-id"), NewGuid());
 	// add access token we got from authentication step
 	request.headers().add(_XPLATSTR("Authorization"), impl->tokenType + _XPLATSTR(" ") + impl->accessToken);
-	std::wcout << request.to_string() << std::endl;
+	//std::wcout << request.to_string() << std::endl;
 	// Azure HTTP REST API call
 	return client.request(request).then([impl](web::http::http_response response)
 	{
-		std::wcout << response.to_string() << std::endl;
+		//std::wcout << response.to_string() << std::endl;
 		std::error_code err;
 		impl->status_code = response.status_code();
 		if (impl->status_code == 200) {
@@ -458,12 +459,15 @@ pplx::task<void>  KeyVault::getCSR(utility::string_t certName) {
 			utility::string_t target = impl->read_response_body(response);
 			//std::wcout << target << std::endl;
 
-			impl->key = web::json::value::parse(target.c_str(), err);
+			impl->cert = web::json::value::parse(target.c_str(), err);
 			//std::wcout << impl->secret << std::endl;
 
 		}
 		else {
-			impl->secret = web::json::value::parse(_XPLATSTR("{\"id\":\"\",\"value\":\"\"}"), err);
+			utility::string_t target = impl->read_response_body(response);
+			//std::wcout << target << std::endl;
+
+			impl->cert = web::json::value::parse(target.c_str(), err);
 		}
 	});
 }
@@ -476,10 +480,11 @@ MERGE CERT
 
 /* Call Azure KeyVault REST API to MERGE CERTIFICATE
 */
-bool KeyVault::mergedCert()
+bool KeyVault::mergedCert(utility::string_t certName, utility::string_t fileName, web::json::value & jsonCert)
 {
-	mergeCertificate().wait();
-	return this->status_code == 200;
+	mergeCertificate(certName, fileName).wait();
+	jsonCert = this->cert;
+	return this->status_code == 201;
 }
 
 
@@ -496,18 +501,16 @@ Request Body:
 }
 --------------------------------------------------------------------------------
 */
-pplx::task<void>  KeyVault::mergeCertificate() {
+pplx::task<void>  KeyVault::mergeCertificate(utility::string_t certName, utility::string_t fileName) {
 	auto impl = this;
 
-	utility::string_t certName = _XPLATSTR("myCert11");
+
 	utility::ifstream_t inFile;
-	inFile.open("myCert1.crt");
+	inFile.open(fileName);
 
 	utility::stringstream_t strStream;
 	strStream << inFile.rdbuf();
-	utility::string_t cert = strStream.str() ;
-
-
+	utility::string_t cert = strStream.str();
 
 	std::vector<utility::string_t> strList = {_XPLATSTR("-----BEGIN CERTIFICATE-----\n"),_XPLATSTR("\n-----END CERTIFICATE-----")};
 	for (std::vector<utility::string_t>::const_iterator it = strList.begin(); it != strList.end(); it++)
@@ -515,7 +518,7 @@ pplx::task<void>  KeyVault::mergeCertificate() {
 		eraseAllSubStr(cert, *it);
 	}
 
-	std::wcout << cert << std::endl;
+	//std::wcout << cert << std::endl;
 
 	utility::string_t url = _XPLATSTR("https://") + impl->keyVaultName + _XPLATSTR(".vault.azure.net/certificates/") + certName + _XPLATSTR("/pending/merge?api-version=2016-10-01");
 
@@ -533,20 +536,24 @@ pplx::task<void>  KeyVault::mergeCertificate() {
 	postData[L"x5c"].as_array()[0] = web::json::value::string(utility::conversions::to_string_t(cert));
 	
 	request.set_body(postData);
-	std::wcout << request.to_string() << std::endl;
+	//std::wcout << request.to_string() << std::endl;
+
 	// Azure HTTP REST API call
 	return client.request(request).then([impl](web::http::http_response response)
 	{
-		std::wcout << response.to_string() << std::endl;
+		//std::wcout << response.to_string() << std::endl;
 		std::error_code err;
 		impl->status_code = response.status_code();
-		if (impl->status_code == 200) {
+		if (impl->status_code == 201) {
 
 			utility::string_t target = impl->read_response_body(response);
+			impl->cert = web::json::value::parse(target.c_str(), err);
 
 		}
 		else {
-			impl->secret = web::json::value::parse(_XPLATSTR("{\"id\":\"\",\"value\":\"\"}"), err);
+			
+			utility::string_t target = impl->read_response_body(response);
+			impl->cert = web::json::value::parse(target.c_str(), err);
 		}
 	});
 }
@@ -567,7 +574,7 @@ void KeyVault::eraseAllSubStr(utility::string_t & mainStr, const utility::string
 }
 
 /******************************************************
-GET KEYS, SECRETS
+		GET KEYS, SECRETS
 *******************************************************/
 
 /* Call Azure KeyVault REST API to GET KEY
@@ -593,18 +600,18 @@ pplx::task<void> KeyVault::get_key(utility::string_t secretName)
 	// create the url path to query the keyvault secret
 	utility::string_t url = _XPLATSTR("https://") + impl->keyVaultName + _XPLATSTR(".vault.azure.net/keys/") + secretName + _XPLATSTR("?api-version=2015-06-01");
 	//utility::string_t url = _XPLATSTR("https://") + impl->keyVaultName + _XPLATSTR(".vault.azure.net/keys/")
-	std::wcout << url << std::endl;
+	//std::wcout << url << std::endl;
 	web::http::client::http_client client(url);
 	web::http::http_request request(web::http::methods::GET);
 	request.headers().add(_XPLATSTR("Accept"), _XPLATSTR("application/json"));
 	request.headers().add(_XPLATSTR("client-request-id"), NewGuid());
 	// add access token we got from authentication step
 	request.headers().add(_XPLATSTR("Authorization"), impl->tokenType + _XPLATSTR(" ") + impl->accessToken);
-	std::wcout << request.to_string() << std::endl;
+	//std::wcout << request.to_string() << std::endl;
 	// Azure HTTP REST API call
 	return client.request(request).then([impl](web::http::http_response response)
 	{
-		std::wcout << response.to_string() << std::endl;
+		//std::wcout << response.to_string() << std::endl;
 		std::error_code err;
 		impl->status_code = response.status_code();
 		if (impl->status_code == 200) {
@@ -725,7 +732,7 @@ pplx::task<void> KeyVault::sign(utility::string_t kid, utility::string_t algorit
 	return client.request(request).then([impl](web::http::http_response response)
 	{
 
-		std::wcout << response.to_string() << std::endl;
+		//std::wcout << response.to_string() << std::endl;
 
 		impl->status_code = response.status_code();
 		if (impl->status_code == 200) {
@@ -945,11 +952,11 @@ void KeyVault::convertTime(utility::string_t expiresIn) {
 	int difference = operator-(codeExpiresOn, timeNow);
 
 	//From Response
-	std::wcout << _XPLATSTR("Expires In	:") << expiresIn << std::endl;
+//	std::wcout << _XPLATSTR("Expires In	:") << expiresIn << std::endl;
 
 	//Configured Variables
-	std::wcout << _XPLATSTR("Time Now	:") << timeNow.to_string() << std::endl;
-	std::wcout << _XPLATSTR("Time Added	:") << codeExpiresOn.to_string() << std::endl;
+	/*std::wcout << _XPLATSTR("Time Now	:") << timeNow.to_string() << std::endl;
+	std::wcout << _XPLATSTR("Time Added	:") << codeExpiresOn.to_string() << std::endl;*/
 
 
 }
