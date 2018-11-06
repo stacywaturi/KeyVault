@@ -2,7 +2,6 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>
-//#include "..\..\..\..\..\..\..\vcpkg\installed\x86-windows\include\boost\container_hash\hash.hpp"
 
 
 std::string Hash::tohex(unsigned char s) {
@@ -22,15 +21,12 @@ std::string Hash::SHA256hash(std::string line) {
 
 	std::stringstream ss;
 	std::string output = "";
-	/*for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
-	{
-		ss << std::hex << std::setw(2) << std::setfill('0') << (unsigned int)hash[i];
-	}*/
+
 	for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
 	{
 		ss << hash[i];
 	}
-	//output = ss.str();
+
 	output = base64_encoder1(ss.str());
 	return output;
 
@@ -49,17 +45,14 @@ std::string Hash::SHA384hash(std::string line) {
 
 	std::string output = "";
 	std::stringstream ss;
-	/*for (int i = 0; i < SHA384_DIGEST_LENGTH; i++)
-	{
-		ss << std::hex << std::setw(2) << std::setfill('0') << (unsigned int)hash[i];
-	}*/
+
 	
 
 	for (int i = 0; i < SHA384_DIGEST_LENGTH; i++)
 	{
 		ss << hash[i];
 	}
-	//output = ss.str();
+	
 	output = base64_encoder1(ss.str());
 	return output;
 
@@ -77,20 +70,16 @@ std::string Hash::SHA512hash(std::string line) {
 
 	std::string output = "";
 	std::stringstream ss;
-	/*for (int i = 0; i < SHA512_DIGEST_LENGTH; i++)
-	{
-		ss << std::hex << std::setw(2) << std::setfill('0') << (unsigned int)hash[i];
-	}*/
+
 	for (int i = 0; i < SHA512_DIGEST_LENGTH; i++)
 	{
 		ss << hash[i];
 	}
-	//l
-//	std::cout << ss.str() << std::endl;
+	
+
 
 	output = base64_encoder1(ss.str());
-//	output = ss.str();
-	//output = base64_encoder1(ss.str());
+
 	return output;
 
 }

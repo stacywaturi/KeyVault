@@ -58,7 +58,7 @@ pplx::task<void> KeyVault::AuthenticateKeyVault(utility::string_t& keyVaultName)
 	return client.request(web::http::methods::GET).then([impl](web::http::http_response response)
 	{
 		//std::wcout << std::endl << _XPLATSTR("UNAUTHORIZED RESPONSE	:");
-		//std::wcout << response.to_string() << std::endl;
+		std::wcout << response.to_string() << std::endl;
 		impl->status_code = response.status_code();
 		if (impl->status_code == 401) {
 			web::http::http_headers& headers = response.headers();
@@ -747,7 +747,14 @@ pplx::task<void> KeyVault::sign(utility::string_t kid, utility::string_t algorit
 				//std::wcout << target << std::endl;
 				//std::wcout << _XPLATSTR("SUCCESS") << std::endl;
 			}
+		
 		}
+		else {
+			utility::string_t target = impl->read_response_body(response);
+
+			impl->signature = web::json::value::parse(target.c_str());
+		}
+
 	});
 }
 
@@ -818,6 +825,12 @@ pplx::task<void> KeyVault::verify(utility::string_t kid, utility::string_t algor
 				//std::wcout << target << std::endl;
 				//std::wcout << _XPLATSTR("Failed") << std::endl;
 			}
+		}
+
+		else {
+			utility::string_t target = impl->read_response_body(response);
+			//std::wcout << target << std::endl;
+			impl->verification = web::json::value::parse(target.c_str());
 		}
 	});
 }

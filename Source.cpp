@@ -25,9 +25,11 @@ void get_all_keys(KeyVault );
 void get_key(KeyVault );
 
 void sign(KeyVault );
+void verify(KeyVault);
 void create_cert(KeyVault );
 void get_csr(KeyVault);
 void merge_cert(KeyVault);
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -38,6 +40,8 @@ int wmain(int argc, wchar_t* argv[])
 int main(int argc, char* argv[])
 #endif
 {
+
+
 	//std::wcout << _XPLATSTR("Enter Key vault name	:");
 	//std::wcout << keyVaultName << std::endl;
 	//std::wcin >> keyVaultName;
@@ -83,14 +87,15 @@ int main(int argc, char* argv[])
 	char action;
 
 	while (type == 'y' || type == 'Y') {
-		system("cls");
+	//	system("cls");
 		std::cout << "Input Action eg. create key, list keys etc" << std::endl;
 		std::cout << "1. Create Key" << std::endl
 			<< "2. Get Specific Key" << std::endl
 			<< "3. Get All Keys" << std::endl
 			<< "4. Sign  " << std::endl
-			<< "5. Create Certificate" << std::endl
-			<< "6. Get CSR" << std::endl 
+			<< "5. Verify" << std::endl
+			<< "6. Create Certificate" << std::endl 
+			<< "7. Get CSR" << std::endl
 			<< "7. Merge cert" << std::endl
 			<< "Enter option: ";
 
@@ -112,14 +117,18 @@ int main(int argc, char* argv[])
 			break;
 
 		case '5':
-			create_cert(kvc);
+			verify(kvc);
 			break;
 
 		case '6':
-			get_csr(kvc);
+			create_cert(kvc);
 			break;
 
 		case '7':
+			get_csr(kvc);
+			break;
+
+		case '8':
 			merge_cert(kvc);
 			break;
 
@@ -199,15 +208,24 @@ void get_all_keys(KeyVault kvc) {
 
 
 void sign(KeyVault kvc) {
-	std::wcout << _XPLATSTR("Enter key name, algorithm and string") << std::endl;
-	std::wcout << _XPLATSTR("keyname1 RS512 string1") << std::endl;
-	utility::string_t keyname = _XPLATSTR("keyname1");
 
-	std::string string1 = "hello world";
-	utility::string_t algorithm = _XPLATSTR("RS256");
-	std::string hashed = "";
+	utility::string_t keyname;
+	utility::string_t algorithm;
+	std::string string1;
+
+	std::wcout << _XPLATSTR("Enter key name	: [keyname1]");
+	std::wcin >> keyname;
+	std::wcout << _XPLATSTR("Enter signing/verification algorithm	: [RS256]");
+	std::wcin >> algorithm;
+	std::wcout << _XPLATSTR("Enter string	: ['hello world']");
+	std::cin >> string1;
+
+	keyname = _XPLATSTR("keyname1");
+	algorithm = _XPLATSTR("RS256");
+	string1 = "hello world";
 
 	Hash hashObj;
+	std::string hashed = "";
 
 	if (algorithm == _XPLATSTR("RS256") || algorithm == _XPLATSTR("ES256")) {
 		hashed = hashObj.SHA256hash(string1).c_str();
@@ -243,7 +261,7 @@ void sign(KeyVault kvc) {
 	bool rc2 = kvc.GetSignature(kid, algorithm, hash, jsonSignature);
 
 	if (rc2 == false) {
-		std::wcout << _XPLATSTR("Cant sign") << std::endl;
+		std::wcout << _XPLATSTR("Cant sign") << jsonSignature << std::endl;
 		return;
 	}
 
@@ -251,22 +269,82 @@ void sign(KeyVault kvc) {
 	std::wcout << _XPLATSTR("Signature  : ") << signValue << std::endl;
 
 
+	
+}
+
+void verify(KeyVault kvc) {
+	utility::string_t keyname;
+	utility::string_t algorithm;
+	utility::string_t signValue;
+	std::string string1;
+
+	std::wcout << _XPLATSTR("Enter key name	: [keyname1]");
+	std::wcin >> keyname;
+	std::wcout << _XPLATSTR("Enter signing/verification algorithm	: [RS256]");
+	std::wcin >> algorithm;
+	std::wcout << _XPLATSTR("Enter string used for signing	: ['hello world'] ");
+	std::cin >> string1;
+	std::wcout << _XPLATSTR("Enter string to be verified	: ");
+	std::wcin >> signValue;
+
+	keyname = _XPLATSTR("keyname1");
+	algorithm = _XPLATSTR("RS256");
+	string1 = "hello world";
+
 	std::wcout << _XPLATSTR("Verifying signature...") << std::endl;
 
 	/*std::string unhashed = "";
 	unhashed = hashObj.decodeURL(hashed);
 	std::wcout << _XPLATSTR("Decoded digest:	") << unhashed.c_str() << std::endl;*/
+	//----------------------------------------------------------------------------------
+	
+	Hash hashObj;
+	std::string hashed = "";
 
+	if (algorithm == _XPLATSTR("RS256") || algorithm == _XPLATSTR("ES256")) {
+		hashed = hashObj.SHA256hash(string1).c_str();
+		std::wcout << _XPLATSTR("Hash value	:") << hashObj.SHA256hash(string1).c_str() << std::endl;
+	}
+	else if (algorithm == _XPLATSTR("RS384") || algorithm == _XPLATSTR("ES384")) {
+		hashed = hashObj.SHA384hash(string1).c_str();
+		std::wcout << _XPLATSTR("Hash value	:") << hashObj.SHA384hash(string1).c_str() << std::endl;
+	}
+	else if (algorithm == _XPLATSTR("RS512") || algorithm == _XPLATSTR("ES512")) {
+		hashed = hashObj.SHA512hash(string1).c_str();
+		std::wcout << _XPLATSTR("Hash value	:") << _XPLATSTR("Digest	:") << hashObj.SHA512hash(string1).c_str() << std::endl;
+	}
+	else
+		std::wcout << _XPLATSTR("NOT A VALID ALGORITHM") << std::endl;
+
+	std::wcout << _XPLATSTR("Querying KeyVault for ") << keyname.c_str() << _XPLATSTR("...") << std::endl;
+	web::json::value jsonKey;
+	bool rc = kvc.GetKeyValue(keyname, jsonKey);
+
+	if (rc == false) {
+		std::wcout << _XPLATSTR("Key doesn't exist") << std::endl;
+		return;
+	}
+	utility::string_t kid = (jsonKey[_XPLATSTR("key")])[_XPLATSTR("kid")].as_string();
+
+	std::wcout << _XPLATSTR("Creating signature from ") << keyname.c_str() << _XPLATSTR("...") << std::endl;
+
+	web::json::value jsonSignature;
+	utility::string_t hash = utility::conversions::to_string_t(hashed);
+
+
+	//----------------------------------------------------------------------------------
 	web::json::value jsonVerification;
 
 	bool rc3 = kvc.GetVerification(kid, algorithm, hash, signValue, jsonVerification);
 	if (rc3 == false) {
-		std::wcout << _XPLATSTR("Cant verify") << std::endl;
+		std::wcout << _XPLATSTR("Cant verify") << jsonVerification << std::endl;
 		return;
 	}
 
 	std::wcout << _XPLATSTR("Verification  : ") << jsonVerification << std::endl;
+
 }
+
 
 void create_cert(KeyVault kvc) {
 
@@ -293,6 +371,8 @@ void create_cert(KeyVault kvc) {
 	std::wcout << _XPLATSTR("Certificate  : ") << jsonCertificate << std::endl;
 
 }
+
+
 
 void get_csr(KeyVault kvc) {
 
