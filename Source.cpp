@@ -210,37 +210,25 @@ void get_all_keys(KeyVault kvc) {
 void sign(KeyVault kvc) {
 
 	utility::string_t keyname;
-	utility::string_t algorithm;
-	std::string string1;
+	utility::string_t  algorithm;
+	const char * string1 ;
 
 	std::wcout << _XPLATSTR("Enter key name	: [keyname1]");
 	std::wcin >> keyname;
 	std::wcout << _XPLATSTR("Enter signing/verification algorithm	: [RS256]");
-	std::wcin >> algorithm;
+	//std::wcin >> algorithm;
 	std::wcout << _XPLATSTR("Enter string	: ['hello world']");
-	std::cin >> string1;
+	//std::cin >> string1;
 
 	keyname = _XPLATSTR("keyname1");
 	algorithm = _XPLATSTR("RS256");
 	string1 = "hello world";
+	
 
-	Hash hashObj;
-	std::string hashed = "";
+	Hash hashObj(string1, utility::conversions::to_utf8string(algorithm), false);
+	//std::cout << hashObj.getHash().c_str() << std::endl;
 
-	if (algorithm == _XPLATSTR("RS256") || algorithm == _XPLATSTR("ES256")) {
-		hashed = hashObj.SHA256hash(string1).c_str();
-		std::wcout << _XPLATSTR("Hash value	:") << hashObj.SHA256hash(string1).c_str() << std::endl;
-	}
-	else if (algorithm == _XPLATSTR("RS384") || algorithm == _XPLATSTR("ES384")) {
-		hashed = hashObj.SHA384hash(string1).c_str();
-		std::wcout << _XPLATSTR("Hash value	:") << hashObj.SHA384hash(string1).c_str() << std::endl;
-	}
-	else if (algorithm == _XPLATSTR("RS512") || algorithm == _XPLATSTR("ES512")) {
-		hashed = hashObj.SHA512hash(string1).c_str();
-		std::wcout << _XPLATSTR("Hash value	:") << _XPLATSTR("Digest	:") << hashObj.SHA512hash(string1).c_str() << std::endl;
-	}
-	else
-		std::wcout << _XPLATSTR("NOT A VALID ALGORITHM") << std::endl;
+	std::string hashed = hashObj.getHash().c_str();
 
 	std::wcout << _XPLATSTR("Querying KeyVault for ") << keyname.c_str() << _XPLATSTR("...") << std::endl; 
 	web::json::value jsonKey;
@@ -268,22 +256,20 @@ void sign(KeyVault kvc) {
 	utility::string_t signValue = (jsonSignature[_XPLATSTR("value")]).as_string();
 	std::wcout << _XPLATSTR("Signature  : ") << signValue << std::endl;
 
-
-	
 }
 
 void verify(KeyVault kvc) {
 	utility::string_t keyname;
 	utility::string_t algorithm;
 	utility::string_t signValue;
-	std::string string1;
+	const char * string1;
 
 	std::wcout << _XPLATSTR("Enter key name	: [keyname1]");
 	std::wcin >> keyname;
 	std::wcout << _XPLATSTR("Enter signing/verification algorithm	: [RS256]");
 	std::wcin >> algorithm;
 	std::wcout << _XPLATSTR("Enter string used for signing	: ['hello world'] ");
-	std::cin >> string1;
+	//std::cin >> string1;
 	std::wcout << _XPLATSTR("Enter string to be verified	: ");
 	std::wcin >> signValue;
 
@@ -298,23 +284,10 @@ void verify(KeyVault kvc) {
 	std::wcout << _XPLATSTR("Decoded digest:	") << unhashed.c_str() << std::endl;*/
 	//----------------------------------------------------------------------------------
 	
-	Hash hashObj;
-	std::string hashed = "";
+	Hash hashObj(string1, utility::conversions::to_utf8string(algorithm), false);
+	
 
-	if (algorithm == _XPLATSTR("RS256") || algorithm == _XPLATSTR("ES256")) {
-		hashed = hashObj.SHA256hash(string1).c_str();
-		std::wcout << _XPLATSTR("Hash value	:") << hashObj.SHA256hash(string1).c_str() << std::endl;
-	}
-	else if (algorithm == _XPLATSTR("RS384") || algorithm == _XPLATSTR("ES384")) {
-		hashed = hashObj.SHA384hash(string1).c_str();
-		std::wcout << _XPLATSTR("Hash value	:") << hashObj.SHA384hash(string1).c_str() << std::endl;
-	}
-	else if (algorithm == _XPLATSTR("RS512") || algorithm == _XPLATSTR("ES512")) {
-		hashed = hashObj.SHA512hash(string1).c_str();
-		std::wcout << _XPLATSTR("Hash value	:") << _XPLATSTR("Digest	:") << hashObj.SHA512hash(string1).c_str() << std::endl;
-	}
-	else
-		std::wcout << _XPLATSTR("NOT A VALID ALGORITHM") << std::endl;
+	std::string hashed = hashObj.getHash().c_str();
 
 	std::wcout << _XPLATSTR("Querying KeyVault for ") << keyname.c_str() << _XPLATSTR("...") << std::endl;
 	web::json::value jsonKey;
