@@ -31,7 +31,7 @@ The path defines the location of the file
 The algorithm defines the algorithm used to hash the file*/
 void Hash::hashDocument(const char* path, std::string algorithm) {
 	int length = 0;
-	if (algorithm == "ES256" || algorithm == "ES256") {
+	if (algorithm == "RS256" || algorithm == "ES256") {
 		calc_sha256(path);
 		length = SHA256_DIGEST_LENGTH;
 
@@ -61,7 +61,7 @@ The algorithm defines the algorithm used to hash the string*/
 void Hash::hashString(const char* string, std::string algorithm) {
 
 	int length = 0;
-	if (algorithm == "ES256" || algorithm == "ES256") {
+	if (algorithm == "RS256" || algorithm == "ES256") {
 		SHA256hash(string);
 		length = SHA256_DIGEST_LENGTH;
 

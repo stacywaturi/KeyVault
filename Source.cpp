@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 			<< "5. Verify" << std::endl
 			<< "6. Create Certificate" << std::endl 
 			<< "7. Get CSR" << std::endl
-			<< "7. Merge cert" << std::endl
+			<< "8. Merge cert" << std::endl
 			<< "Enter option: ";
 
 		std::cin >> action;
@@ -150,7 +150,7 @@ void create_key(KeyVault kvc) {
 	
 	std::wcout << _XPLATSTR("Enter key name (default type RSA 2048)	:");
 	utility::string_t keyname;
-	utility::string_t keytype = _XPLATSTR("RSA");
+	utility::string_t keytype = _XPLATSTR("RSA-HSM");
 	utility::string_t keysize = _XPLATSTR("2048");
 
 
@@ -214,7 +214,7 @@ void sign(KeyVault kvc) {
 	const char * string1 ;
 
 	std::wcout << _XPLATSTR("Enter key name	: [keyname1]");
-	std::wcin >> keyname;
+	//std::wcin >> keyname;
 	std::wcout << _XPLATSTR("Enter signing/verification algorithm	: [RS256]");
 	//std::wcin >> algorithm;
 	std::wcout << _XPLATSTR("Enter string	: ['hello world']");
@@ -229,6 +229,7 @@ void sign(KeyVault kvc) {
 	//std::cout << hashObj.getHash().c_str() << std::endl;
 
 	std::string hashed = hashObj.getHash().c_str();
+	std::cout <<hashed << std::endl;
 
 	std::wcout << _XPLATSTR("Querying KeyVault for ") << keyname.c_str() << _XPLATSTR("...") << std::endl; 
 	web::json::value jsonKey;
@@ -265,9 +266,9 @@ void verify(KeyVault kvc) {
 	const char * string1;
 
 	std::wcout << _XPLATSTR("Enter key name	: [keyname1]");
-	std::wcin >> keyname;
+//	std::wcin >> keyname;
 	std::wcout << _XPLATSTR("Enter signing/verification algorithm	: [RS256]");
-	std::wcin >> algorithm;
+	//std::wcin >> algorithm;
 	std::wcout << _XPLATSTR("Enter string used for signing	: ['hello world'] ");
 	//std::cin >> string1;
 	std::wcout << _XPLATSTR("Enter string to be verified	: ");
@@ -400,180 +401,7 @@ void merge_cert(KeyVault kvc) {
 
 	std::wcout << _XPLATSTR("Certificate Created") << jsonCert << std::endl;
 
-
-
 }
-
-	
-//	
-//
-//	std::wcin >> type >> action;
-//
-//	/////////////////////////////////////////////////////////////////////////////
-//	////// Get Azure KeyVault secret
-//	if (type == _XPLATSTR("key"))
-//	{
-//		if (action == _XPLATSTR("create")) {
-//			std::wcout << _XPLATSTR("Enter key name,type and size ") << std::endl;
-//			std::wcout << _XPLATSTR("keyname3 RSA 2048") << std::endl;
-//			utility::string_t keyname = _XPLATSTR("keyname3");
-//			utility::string_t keytype = _XPLATSTR("RSA");
-//			utility::string_t keysize = _XPLATSTR("2048");
-//			std::wcout << _XPLATSTR("Creating key ") << std::endl;
-//			bool rc =  kvc.createdKey(keyname, keytype, keysize);
-//
-//			if (rc == false) {
-//				std::wcout << _XPLATSTR("Cannot create key") << std::endl;
-//				return 1;
-//			}
-//
-//			else 
-//				std::wcout << _XPLATSTR("Key created") << std::endl;
-//
-//			
-//		}
-//		else if (action == _XPLATSTR("all")) {
-//			std::wcout << _XPLATSTR(" Querying KeyVault for all Keys  ") << std::endl;
-//			web::json::value jsonKey;
-//			action = _XPLATSTR("");
-//			bool rc = kvc.GetKeyValue(action, jsonKey);
-//
-//			if (rc == false) {
-//				std::wcout << _XPLATSTR("Key doesn't exist") << std::endl;
-//				return 1;
-//			}
-//			std::wcout << _XPLATSTR("Keys  : ") << jsonKey << std::endl;
-//		}
-//
-//		else if (action == _XPLATSTR("sign")) {
-//			std::wcout << _XPLATSTR("Enter key name, algorithm and string") << std::endl;
-//			std::wcout << _XPLATSTR("keyname1 RS512 string1") << std::endl;
-//			utility::string_t keyname = _XPLATSTR("keyname1");
-//			
-//			std::string string1 = "string1";
-//			utility::string_t algorithm = _XPLATSTR("RS512");
-//			std::string hashed = "";
-//
-//			Hash hashObj;
-//
-//			if (algorithm == _XPLATSTR("RS256") || algorithm == _XPLATSTR("ES256")) {
-//				hashed = hashObj.SHA256hash(string1).c_str();
-//				std::wcout << hashObj.SHA256hash(string1).c_str() << std::endl;
-//			}
-//			else if (algorithm == _XPLATSTR("RS384") || algorithm == _XPLATSTR("ES384")) {
-//				hashed = hashObj.SHA384hash(string1).c_str();
-//				std::wcout << hashObj.SHA384hash(string1).c_str() << std::endl;
-//			}
-//			else if (algorithm == _XPLATSTR("RS512") || algorithm == _XPLATSTR("ES512")) {
-//				hashed = hashObj.SHA512hash(string1).c_str();
-//				std::wcout << _XPLATSTR("Digest	:") <<  hashObj.SHA512hash(string1).c_str() << std::endl;
-//			}
-//			else
-//				std::wcout << _XPLATSTR("NOT A VALID ALGORITHM") << std::endl;
-//
-//		//	std::wcout << _XPLATSTR("Querying KeyVault for Keys ") << keyname.c_str() << _XPLATSTR("...") << std::endl; 
-//			web::json::value jsonKey;
-//			bool rc = kvc.GetKeyValue(keyname, jsonKey);
-//
-//			if (rc == false) {
-//				std::wcout << _XPLATSTR("Key doesn't exist") << std::endl;
-//				return 1;
-//			}
-//			utility::string_t kid = (jsonKey[_XPLATSTR("key")])[_XPLATSTR("kid")].as_string();
-//
-//
-//			web::json::value jsonSignature;
-//			utility::string_t hash = utility::conversions::to_string_t(hashed);
-//		//	std::wcout << hash.length() << std::endl;
-//
-//			bool rc2 = kvc.GetSignature(kid, algorithm, hash, jsonSignature);
-//
-//			if (rc2 == false) {
-//				std::wcout << _XPLATSTR("Cant sign") << std::endl;
-//				return 1;
-//			}
-//
-//			utility::string_t signValue = (jsonSignature[_XPLATSTR("value")]).as_string();
-//			std::wcout << _XPLATSTR("Signature  : ") << signValue << std::endl;
-//			
-//			std::wcout << _XPLATSTR("Decoding digest...") << std::endl;
-//
-//			std::string unhashed = "";
-//			unhashed = hashObj.decodeURL(hashed);
-//			std::wcout << _XPLATSTR("Decoded digest:	")<<unhashed.c_str() << std::endl;
-//
-//			/*web::json::value jsonVerification;
-//
-//			bool rc3 = kvc.GetVerification(kid, algorithm, hash, signValue, jsonVerification);
-//			if (rc3 == false) {
-//				std::wcout << _XPLATSTR("Cant verify") << std::endl;
-//				return 1;
-//			}*/
-//
-//		//	std::wcout << _XPLATSTR("Verification  : ") << jsonVerification << std::endl;
-//
-//		}
-//
-//
-//		else {
-//			std::wcout << _XPLATSTR("Querying KeyVault for Keys ") << action.c_str() << _XPLATSTR("...") << std::endl;
-//			web::json::value jsonKey;
-//			bool rc = kvc.GetKeyValue(action, jsonKey);
-//
-//			if (rc == false) {
-//				std::wcout << _XPLATSTR("Key doesn't exist") << std::endl;
-//				return 1;
-//			}
-//
-//			std::wcout << _XPLATSTR("Key   : ") << (jsonKey[_XPLATSTR("key")]) << std::endl;
-//
-//
-//		}
-//
-//	}
-//
-//	else if (type == _XPLATSTR("secret")) {
-//		
-//		if (action == _XPLATSTR("all")) {
-//			std::wcout << _XPLATSTR(" Querying KeyVault for all Secrets  ") << std::endl;
-//			web::json::value jsonSecret;
-//			action = _XPLATSTR("");
-//			bool rc = kvc.GetSecretValue(action, jsonSecret);
-//			
-//
-//			if (rc == false) {
-//				/*std::wcout << _XPLATSTR("Secret doesn't exist") << std::endl;*/
-//				return 1;
-//			}
-//
-//			std::wcout << _XPLATSTR("Secrets  : ") << jsonSecret << std::endl;
-//		}
-//
-//		else {
-//			std::wcout << _XPLATSTR("Querying KeyVault for Secret ") << action.c_str() << _XPLATSTR("...") << std::endl;
-//			web::json::value jsonSecret;
-//			bool rc = kvc.GetSecretValue(action, jsonSecret);
-//
-//			if (rc == false) {
-//				std::wcout << _XPLATSTR("Secret doesn't exist") << std::endl;
-//				return 1;
-//			}
-//
-//			std::wcout  << (jsonSecret[_XPLATSTR("kid")]) << std::endl;
-//			std::wcout << _XPLATSTR("Secret ID   : ") << jsonSecret[_XPLATSTR("id")] << std::endl;
-//			std::wcout << _XPLATSTR("Secret Value: ") << jsonSecret[_XPLATSTR("value")] << std::endl;
-//
-//
-//		}
-//	}
-//
-//
-//	return 0;
-//}
-//
-
-
-
 
 
 

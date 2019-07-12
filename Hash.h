@@ -4,7 +4,10 @@
 #pragma once
 #include <iostream>
 #include <openssl\sha.h>
-//
+
+/* This class creates a hash of a Document or string and encodes it in Base64URL
+	in order for the result to be compatible for signing usinfg Azure Key Vault 
+	*/
 static const char base64_url_alphabet1[] = {
 
 	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
@@ -22,8 +25,8 @@ static const char base64_url_alphabet1[] = {
 class Hash
 {
 public:
-
-	Hash(const char* , std::string , bool );
+	//Hash constructor (string/document path, 
+	Hash(const char* path, std::string , bool );
 	std::string getHash();
 
 

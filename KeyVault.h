@@ -52,6 +52,17 @@ private:
 //METHODS
 
 private:
+
+	//Make a HTTP Get to Azure KeyVault unauthorized which gets us a response 
+	//where the header contains the url of Identity provider to be used
+	pplx::task<void> AuthenticateKeyVault(utility::string_t& keyVaultName);
+	//Device Authorization Request
+	pplx::task<void> getDeviceCode(utility::string_t& clientId);
+	//Client Code Authorization
+	pplx::task<void> getClientAuthCode(utility::string_t & clientId);
+	//Device code polling to Authenticate 
+	void Authenticate(utility::string_t& clientId);
+
 	//Runtime Tasks
 	//Get a specified secret from a given key vault.
 	pplx::task<void> get_secret(utility::string_t secretName);
@@ -63,28 +74,17 @@ private:
 	pplx::task<void> verify(utility::string_t secretName, utility::string_t algorithm, utility::string_t string1, utility::string_t signValue);
 	//Creates a new key, stores it, then returns key parameters and attributes to the client.
 	pplx::task<void> createKey(utility::string_t& keyname, utility::string_t& keytype, utility::string_t& keysize);
-
-	
-
-
-
-
-
-	//Make a HTTP Get to Azure KeyVault unauthorized which gets us a response 
-	//where the header contains the url of Identity provider to be used
-	pplx::task<void> AuthenticateKeyVault(utility::string_t& keyVaultName);
-	//Device Authorization Request
-	pplx::task<void> getDeviceCode(utility::string_t& clientId);
-	//Device code polling to Authenticate 
-	void Authenticate(utility::string_t& clientId);
-
-	
-
+	//Creates a new certificate.
+	pplx::task<void> createCert(utility::string_t certName, utility::string_t subject);
+	//Merges a certificate or a certificate chain with a key pair existing on the server.
+	pplx::task<void> mergeCertificate(utility::string_t certName, utility::string_t fileName);
+	//Gets the creation operation of a certificate.
+	pplx::task<void> getCSR(utility::string_t certName);
 	//List subscriptions (**)
 	pplx::task<void> listSubscriptions();
 
-	//Helper Functions 
 
+	//Helper Functions 
 	/*parse out https url in double quotes*/
 	utility::string_t get_https_url(utility::string_t headerValue);
 	/*Make a HTTP Get to Azure KeyVault unauthorized which gets us a response
@@ -100,6 +100,7 @@ private:
 	
 
 public:
+	//CONSTRUCTORS
 	KeyVault();
 	KeyVault(utility::string_t & keyVault_Name, utility::string_t & access_token, utility::string_t & token_type);
 	void createAuthorizationURL(utility::string_t& keyVaultName, utility::string_t&  access_token, utility::string_t& token_type);
@@ -111,31 +112,30 @@ public:
 	int GetDeviceCodeResponse(utility::string_t& clientId);
 	//Authentication Response, after Device code TOKEN
 	int GetAuthenticateResponse(utility::string_t& clientId);
-	
+	//Authentication Response, after Client auth code TOKEN
 	int GetClientAuthCodeResponse(utility::string_t & clientId);
 
-	pplx::task<void> getClientAuthCode(utility::string_t & clientId);
 
+	//KEY VAULT OPERATIONS
+	//Response, after request to download CSR
 	bool getCSRResponse(utility::string_t certName, web::json::value & response);
-
-	//Get Access TOKEN
+	//Response, after request to Get Access TOKEN
 	bool GetAccessToken(utility::string_t & clientId, utility::string_t & access_token, utility::string_t & token_type);
-
-	//Key Vault Operations
+	//Response, after request to Get Secret from KeyVault
 	bool GetSecretValue(utility::string_t secretName, web::json::value& secret);
-	pplx::task<void> getCSR(utility::string_t certName);
+	//Response, after Merging Certificate too Certificate Request 
 	bool mergedCert(utility::string_t certName, utility::string_t fileName, web::json::value &);
-	pplx::task<void> mergeCertificate(utility::string_t certName, utility::string_t fileName);
-
-	
-
-	
+	//Response, after Call to Azure KeyVault REST API to GET KEY
 	bool GetKeyValue(utility::string_t secretName, web::json::value& key);
+	//Response after Call Azure KeyVault REST API to SIGN
 	bool GetSignature(utility::string_t secretName, utility::string_t, utility::string_t, web::json::value& signature);
+	//Response, after Call Azure KeyVault REST API to VERIFY
 	bool GetVerification(utility::string_t secretName, utility::string_t, utility::string_t, utility::string_t signValue, web::json::value& verification);
-	pplx::task<void> createCert(utility::string_t certName, utility::string_t subject);
+	//Response, after Call Azure KeyVault REST API to CREATE KEY
 	bool createdKey(utility::string_t & keyname, utility::string_t & keytype, utility::string_t & keysize);
+	//Response, after Call Azure KeyVault REST API to CREATE CERTIFICATE
 	bool createdCert(utility::string_t certName, utility::string_t subject, web::json::value &);
+	
 };
 
 #endif

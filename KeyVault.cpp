@@ -85,6 +85,7 @@ pplx::task<void> KeyVault::AuthenticateKeyVault(utility::string_t& keyVaultName)
 
 }
 
+
 /* Call Azure KeyVault REST API to REQUEST DEVICE CODE
 */
 int KeyVault::GetDeviceCodeResponse(utility::string_t& clientId)
@@ -129,7 +130,6 @@ pplx::task<void> KeyVault::getDeviceCode(utility::string_t& clientId) {
 
 	});
 }
-
 
 
 /* Call Azure KeyVault REST API to Authenticate Request Client Credentials Grant 
@@ -276,7 +276,7 @@ void KeyVault::Authenticate(utility::string_t& clientId)
 CREATE CERT
 *******************************************************/
 
-/* Call Azure KeyVault REST API to CREATE KEY
+/* Call Azure KeyVault REST API to CREATE CERTIFICATE
 */
 bool KeyVault::createdCert(utility::string_t certName, utility::string_t subject, web::json::value &cert)
 {
@@ -394,7 +394,7 @@ pplx::task<void>  KeyVault::createKey(utility::string_t& keyname, utility::strin
 	// Azure HTTP REST API call
 	return client.request(request).then([impl](web::http::http_response response)
 	{
-		//std::wcout << response.to_string() << std::endl;
+		std::wcout << response.to_string() << std::endl;
 		std::error_code err;
 		impl->status_code = response.status_code();
 		if (impl->status_code == 200) {
@@ -488,8 +488,9 @@ bool KeyVault::mergedCert(utility::string_t certName, utility::string_t fileName
 }
 
 
-/*Creates a new certificate.
-If this is the first version, the certificate resource is created.
+/*Merges a certificate or a certificate chain with a key pair existing on the server.
+The MergeCertificate operation performs the merging of a certificate or certificate
+chain with a key pair currently available in the service. 
 This operation requires the certificates/create permission.
 --------------------------------------------------------------------------------
 POST {vaultBaseUrl}/certificates/{certificate-name}/pending/merge?api-version=2016-10-01
